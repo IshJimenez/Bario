@@ -19,7 +19,7 @@ Bario can also wrap to another area by pressing the DOWN key on top of a tube.
 Will update as game levels up.
 
 
-Test--
+Test----
 
 
 
