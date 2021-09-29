@@ -33,6 +33,13 @@ loadSprite('blueSteel', 'aBlueSteel.png')
 loadSprite('blueEvilShroom', 'aBlueEvilShroom.png')
 loadSprite('blueSurpise', 'aBlueSurprise.png')
 
+loadSound("power", "t2.wav")
+loadSound("lvl1", "bIndi.mp3")
+loadSound("lost", "bEnding.mp3")
+loadSound("coinCollect", "bCoin.mp3")
+
+// const music = play("lvl1")
+// music.loop()
 
 scene("game", ( { level, score }) => {
     layers(['bg', 'obj', 'ui'], 'obj')
@@ -94,30 +101,17 @@ const levelCfg = {
 const gameLevel = addLevel(maps[level], levelCfg)
 
     const scoreLable = add([
-        // text('test'),
+
         text(score),
-        // text(meg),
         pos(30,6),
         layer('ui'),
         {
-            // value: 'Test',
             value: score,
-            // value: 'You dont win',
-
         }
 ])
-    // const scoreLable2 = add([
-    //     // text('test'),
-    //     text(Text1),
-    //     pos(40,8),
-    //     layer('ui'),
-    //     {
-    //         // value: 'Test',
-    //         value: 'You dont win.',
-    //     }
-    // ])
 
 add([text('level ' + parseInt(level + 1)), pos(50,6)])
+
 
 function big() {
         let timer = 0
@@ -160,7 +154,7 @@ const player = add([
 action('mushroom', (m) => {
         m.move(20, 0)
     })
-
+    
 // I can make it to where the object is destroyed off the map if its coin/mushroom surprise.
 // It wont delete the block though
 // I cant spawn anything from the block either 
@@ -171,25 +165,27 @@ player.on("headbump", (obj) => {
             gameLevel.spawn('$', obj.gridPos.sub(0, 1))
             destroy(obj)
             gameLevel.spawn('}', obj.gridPos.sub(0,0))
-        }
+        } 
         if (obj.is('mushroom-surprise')) {
             gameLevel.spawn('#', obj.gridPos.sub(0, 1))
             destroy(obj)
             gameLevel.spawn('}', obj.gridPos.sub(0,0))
         }
-        if (obj.is('block')) {
-            destroy(obj)
-        }
+        // if (obj.is('block')) {
+        //     destroy(obj)
+        // }
 })
 
 
 player.collides('mushroom', (m) => {
-        destroy(m)
-        player.biggify(6)
+        destroy(m);
+        play("power")
+        player.biggify(6);
 })
 
 player.collides('coin', (c) => {
         destroy(c)
+        play("coinCollect")
         scoreLable.value++
         scoreLable.text = scoreLable.value
 
@@ -204,6 +200,7 @@ action('dangerous', (d) => {
 player.collides('dangerous', (d) => {
     if (isJumping) {
         destroy(d)
+        camShake(2)
     } else {
         go('lose', { score: scoreLable.value})
     }
@@ -246,10 +243,17 @@ player.action(() => {
     })
 })
 
+
+
 scene('lose', ({ score }) => {
-    add([text(score, 32), origin('center'), pos(width()/2, height()/ 2)])
+    play("lost")
+    // stop("lost")
+    add([text("LOSER", 100), origin('center'), pos(width()/2, height()/ 4)])
+    add([text("Score: " + score , 32), origin('center'), pos(width()/2, height()/ 2)])
 })
 
 // start("game")
 start("game", { level: 0, score: 0})
+
+
 
