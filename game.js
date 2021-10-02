@@ -33,16 +33,21 @@ loadSprite('blueSteel', 'aBlueSteel.png')
 loadSprite('blueEvilShroom', 'aBlueEvilShroom.png')
 loadSprite('blueSurpise', 'aBlueSurprise.png')
 
+loadSprite('test', 'myface.jpg')
+
 loadSound("power", "t2.wav")
 loadSound("lvl1", "bIndi.mp3")
 loadSound("lost", "bEnding.mp3")
 loadSound("coinCollect", "bCoin.mp3")
 
-// const music = play("lvl1")
-// music.loop()
-
 scene("game", ( { level, score }) => {
     layers(['bg', 'obj', 'ui'], 'obj')
+
+    const music1 = play("lvl1", {
+        loop: true
+    })
+
+add([sprite('test'), layer('bg')])
 
 const maps = [
     [
@@ -112,7 +117,6 @@ const gameLevel = addLevel(maps[level], levelCfg)
 
 add([text('level ' + parseInt(level + 1)), pos(50,6)])
 
-
 function big() {
         let timer = 0
         let isBig = false
@@ -148,7 +152,8 @@ const player = add([
         pos(30, 0),
         body(),
         big(),
-        origin('bot')
+        origin('bot'),
+        music1.play()
 ])
 
 action('mushroom', (m) => {
@@ -202,6 +207,7 @@ player.collides('dangerous', (d) => {
         destroy(d)
         camShake(2)
     } else {
+        music1.stop()
         go('lose', { score: scoreLable.value})
     }
 })
@@ -209,12 +215,14 @@ player.collides('dangerous', (d) => {
 player.action(() => {
     camPos(player.pos)
     if (player.pos.y >= FALL_DEATH) {
+        music1.stop()
         go('lose', { score: scoreLable.value})
     }
 })
 
 player.collides('pipe', () => {
     keyPress('down', () => {
+        music1.stop()
         go('game', {
             level: (level + 1) % maps.length,
             score: scoreLable.value
@@ -246,10 +254,12 @@ player.action(() => {
 
 
 scene('lose', ({ score }) => {
-    play("lost")
-    // stop("lost")
-    add([text("LOSER", 100), origin('center'), pos(width()/2, height()/ 4)])
-    add([text("Score: " + score , 32), origin('center'), pos(width()/2, height()/ 2)])
+    play("lost");
+    add([text("LOSER", 100), origin('center'), pos(width()/2, height()/ 5)])
+    add([text("Score: " + score , 32), origin('center'), pos(width()/2, height()/ 2.25)]);
+    add([text("Click to restart :-/" , 32), origin('bot'), pos(width()/2, height()/ 1.5)])
+
+    mouseClick(() => window.location.reload());
 })
 
 // start("game")
